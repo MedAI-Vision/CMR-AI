@@ -1,3 +1,0 @@
-include mmaction/model_zoo.yml
-recursive-include mmaction/configs *.py *.yml
-recursive-include mmaction/tools *.sh *.py

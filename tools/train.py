@@ -185,7 +185,6 @@ def main():
             config=cfg.pretty_text)
 
     test_option = dict(test_last=args.test_last, test_best=args.test_best)
-    # print(f'\nVAL:{args.validate}\nTEST:{test_option}')
     train_model(
         model,
         datasets,

@@ -174,7 +174,6 @@ def inference_pytorch(args, cfg, distributed, data_loader):
     
     print('Inference Bulid Model: %06s' % (T5 - T4))
     print('Inference Test: %06s' % (T6 - T5))
-    # print(outputs)
     return outputs
 
 

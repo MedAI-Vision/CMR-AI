@@ -18,7 +18,6 @@ from mmaction.utils import register_module_hooks
 torch.set_default_tensor_type(torch.FloatTensor) # Please return to FloatTensor when training
 
 
-# TODO import test functions from mmcv and delete them from mmaction2
 try:
     from mmcv.engine import multi_gpu_test, single_gpu_test
 except (ImportError, ModuleNotFoundError):

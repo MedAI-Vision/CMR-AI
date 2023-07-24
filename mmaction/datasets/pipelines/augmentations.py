@@ -1,12 +1,3 @@
-'''
-Author: airscker
-Date: 2022-09-16 23:12:47
-LastEditors: airscker
-LastEditTime: 2023-04-18 17:48:01
-Description: NULL
-
-Copyright (C) 2023 by Airscker(Yufeng), All Rights Reserved. 
-'''
 import random
 import warnings
 from collections.abc import Sequence
@@ -23,11 +14,11 @@ from ..builder import PIPELINES
 
 
 def _combine_quadruple(a, b):
-    return (a[0] + a[2] * b[0], a[1] + a[3] * b[1], a[2] * b[2], a[3] * b[3])
+    return a[0] + a[2] * b[0], a[1] + a[3] * b[1], a[2] * b[2], a[3] * b[3]
 
 
 def _flip_quadruple(a):
-    return (1 - a[0] - a[2], a[1], a[2], a[3])
+    return 1 - a[0] - a[2], a[1], a[2], a[3]
 
 
 def _init_lazy_if_proper(results, lazy):
@@ -431,7 +422,6 @@ class Imgaug:
             assert in_type == out_type, \
                 ('Imgaug input dtype and output dtype are not the same. ',
                  f'Convert from {in_type} to {out_type}')
-        # modified by raiiyf 4.13
         if 'lge' in results:
             in_type = results['lge'][0].dtype.type
 
@@ -485,7 +475,6 @@ class Imgaug:
             results['img_shape_sax'] = (img_h, img_w)
         if 'ch' in results:
             results['img_shape_4ch'] = (img_h, img_w)
-        # modified by raiiyf 4.13
         if 'lge' in results:
             results['img_shape_lge'] = (img_h, img_w)
 
@@ -2514,7 +2503,6 @@ class SingleNorm:
             results['sax'] = self.__norm(results['sax'])
         if 'ch' in results:
             results['ch'] = self.__norm(results['ch'])
-        # modified by raiiyf 4/13
         if 'lge' in results:
             results['lge'] = self.__norm(results['lge'])
         return results
@@ -2676,7 +2664,6 @@ class Flip_Z:
         #     results['sax'] = self.flip_z(results['sax'])
         # if 'ch' in results:
         #     results['ch'] = self.flip_z(results['ch'])
-        # modified by raiiyf 4/13
         if 'lge' in results:
             results['lge'] = self.flip_z(results['lge'])
         return results
