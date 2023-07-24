@@ -23,8 +23,10 @@ For SAX cine, the input sample contains 3 views (eg. slice_up.nii.gz, slice_mid.
 
 The annotation format is `[middle slice path of SAX cine] [4CH cine path] [LGE path]* [frame number of cine] [frame number of LGE]* [class label]` (*means optional and an example ann file is [ann_example.txt](https://github.com/MedAI-Vision/CMR-AI/ann_exsample.txt)).
 
+All data masks(ROI) need to be processed into `.pkl` format, which includes binary segmentation maps for each sample.
+
 ### Config setting
-Set or update the dataset path and other configurations in config file `config.py` .
+Set or update the dataset path , mask file path and other configurations in config file `config.py` .
 
 ### Training
 To train a VST model for single modality CMR dataset, run:
@@ -41,6 +43,10 @@ For example, to train a VST model with 4 GPUs, run:
 
 `CUDA_VISIBLE_DEVICES=0,1,2,3 bash .../VST/tools/dist_train.sh config.py 4`
 
+
+When training fusion model, first process all the single modality models with code `convert_model.ipynb`, which removes the MLP layer of VST, then set the fusion mode to True in config file, also add the single modality model paths(after removed MLPs). Finally, run the same command to train the fusion model.
+
+
 ### Testing
 To test a VST model for single or fusion modality CMR dataset, run:
 
@@ -55,3 +61,12 @@ bash tools/dist_test.sh <CONFIG_FILE> <CHECKPOINT_FILE> <GPU_NUM>
 For example, to test a VST model with 4 GPUs, run:
 
 `CUDA_VISIBLE_DEVICES=0,1,2,3 bash .../VST/tools/dist_test.sh config.py epoch_xx.pth 4`
+
+## Usage of CNN-LSTM
+The data preparation remains unchanged. 
+
+To train a CNN-LSTM model with 4GPUs, run:
+`CUDA_VISIBLE_DEVICES=0,1,2,3 python -m torch.distributed.launch --nproc_per_node=4 train.py `
+
+To test a CNN-LSTM model with 4GPUs, run:
+`CUDA_VISIBLE_DEVICES=0,1,2,3 python -m torch.distributed.launch --nproc_per_node=4 test.py `
