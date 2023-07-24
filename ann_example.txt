@@ -1,0 +1,2 @@
+./slice_mid.nii.gz ./4ch_cine.nii.gz ./sax_lge.nii.gz 25 9 4  (sax+4ch+lge fusion)
+./slice_mid.nii.gz ./4ch_cine.nii.gz 25 4  (sax+4ch fusion)
