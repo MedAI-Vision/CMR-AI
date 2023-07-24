@@ -43,6 +43,10 @@ For example, to train a VST model with 4 GPUs, run:
 
 `CUDA_VISIBLE_DEVICES=0,1,2,3 bash .../VST/tools/dist_train.sh config.py 4`
 
+
+When training fusion model, first process all the single modality models with code `convert_model.ipynb`, which removes the MLP layer of VST, then set the fusion mode to True in config file, also add the single modality model paths(after removed MLPs). Finally, run the same command to train the fusion model.
+
+
 ### Testing
 To test a VST model for single or fusion modality CMR dataset, run:
 
