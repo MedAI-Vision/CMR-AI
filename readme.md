@@ -16,7 +16,7 @@ Three CMR modalities, i.e., short-axis (SAX) cine, four-chamber (4CH) cine, and 
 
 ### Installation
 
-1. This project is implemented for Python 3 and depends on [PyTorch](https://pytorch.org). Please refer to [requirements.txt](https://github.com/MedAI-Vision/CMR-AI/requirements.txt) in our repo or [install.md](https://github.com/SwinTransformer/Video-Swin-Transformer/blob/master/docs/install.md)  (recommended) from the official repo of VST for environment preparation.
+1. This project is implemented for Python 3 and depends on [PyTorch](https://pytorch.org). Please refer to [requirements.txt](https://github.com/MedAI-Vision/CMR-AI-Origin/requirements.txt) in our repo or [install.md](https://github.com/SwinTransformer/Video-Swin-Transformer/blob/master/docs/install.md)  (recommended) from the official repo of VST for environment preparation.
 2. Download the pretrained model from [link](https://github.com/SwinTransformer/storage/releases/download/v1.0.4/swin_base_patch244_window877_kinetics600_22k.pth) and run:
 
 ```shell
