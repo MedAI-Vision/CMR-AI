@@ -468,7 +468,7 @@ def run(disease, train_sax, test_sax):
 
     try:
         # trying to load checkpoint
-        checkpoint = torch.load(output_path + 'cnnlstm_pretrained.pth', map_location=device)
+        checkpoint = torch.load(output_path + 'pretrained_densenet_4012BC.pth', map_location=device)
         model.load_state_dict(checkpoint['net'], strict=False)
         optimizer.load_state_dict(checkpoint['optimizer'])
         epoch_resume = checkpoint["epoch"] + 1

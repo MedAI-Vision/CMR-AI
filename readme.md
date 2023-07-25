@@ -115,9 +115,9 @@ We calculate AUROC, f1-score, specificity (sensitivity==0.9) and sensitivity (sp
 
 ## Usage of CNN-LSTM
 
-The data preparation remains unchanged. 
+The data preparation remains unchanged.
 
-Set to CNN-LSTM directory: `cd ./CNN-LSTM`
+Set to CNN-LSTM directory: `cd ./CNN-LSTM`. Pretrained model is in the `frame` directory.
 
 To train a CNN-LSTM model with 4GPUs, run:
 `CUDA_VISIBLE_DEVICES=0,1,2,3 python -m torch.distributed.launch --nproc_per_node=4 train.py `

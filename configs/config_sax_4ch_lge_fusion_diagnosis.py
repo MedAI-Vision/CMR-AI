@@ -1,3 +1,4 @@
+# model architecture
 model = dict(
     type='fusion_model',
     backbone=dict(
@@ -34,6 +35,8 @@ model = dict(
     lge_weight=
     '/data/.../VST_fusion_dataset/workdir/sax_lge_11cls/spacing_0.994/TRAIN12-3-noseed/epoch_300_fusion_base.pth'
 )
+
+# some basic experiment params and required data and annotation path
 checkpoint_config = dict(interval=5)
 log_config = dict(interval=20, hooks=[dict(type='TextLoggerHook')])
 dist_params = dict(backend='nccl')
@@ -54,6 +57,8 @@ ann_file_val = '/data/.../VST_fusion_dataset/workdir/Diagnosis_ann/lge_fusion/0.
 ann_file_test = '/data/.../VST_fusion_dataset/workdir/annotations/external/sax_4ch_lge_0.994_11cls_fusion_test_exclude2.txt'
 img_norm_cfg = dict(
     mean=[68.95, 71.7, 121.02], std=[56.96, 54.65, 39.4], to_bgr=False)
+
+# train process params, included data augmentation selection
 train_pipeline = [
     dict(
         type='SampleFrames',
@@ -76,6 +81,8 @@ train_pipeline = [
     dict(type='Collect', keys=['sax', 'ch', 'lge', 'label'], meta_keys=[]),
     dict(type='ToTensor', keys=['sax', 'ch', 'lge', 'label'])
 ]
+
+# validation params
 val_pipeline = [
     dict(
         type='SampleFrames',
@@ -96,6 +103,8 @@ val_pipeline = [
     dict(type='Collect', keys=['sax', 'ch', 'lge', 'label'], meta_keys=[]),
     dict(type='ToTensor', keys=['sax', 'ch', 'lge', 'label'])
 ]
+
+# testing params
 test_pipeline = [
     dict(
         type='SampleFrames',
@@ -116,6 +125,8 @@ test_pipeline = [
     dict(type='Collect', keys=['sax', 'ch', 'lge', 'label'], meta_keys=[]),
     dict(type='ToTensor', keys=['sax', 'ch', 'lge', 'label'])
 ]
+
+# dataset and dataloader params
 data = dict(
     videos_per_gpu=8,
     workers_per_gpu=4,
@@ -229,8 +240,12 @@ data = dict(
         type1='sax',
         type2='4ch',
         type3='lge'))
+
+# evaluation params when in training
 evaluation = dict(
     interval=1, metrics=['top_k_accuracy', 'mean_class_accuracy'])
+
+# optimizer choice
 optimizer = dict(
     type='AdamW',
     lr=0.001,
@@ -242,6 +257,8 @@ optimizer = dict(
             relative_position_bias_table=dict(decay_mult=0.0),
             norm=dict(decay_mult=0.0),
             backbone=dict(lr_mult=0.1))))
+
+# learning rate
 lr_config = dict(
     policy='CosineAnnealing',
     min_lr=0,

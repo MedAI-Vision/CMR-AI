@@ -38,7 +38,6 @@ def confusion_matrix(y_pred, y_real, normalize=None):
         raise TypeError(
             f'y_real dtype must be np.int64, but got {y_real.dtype}')
 
-    
     label_set = np.unique(np.concatenate((y_pred, y_real)))
     num_labels = len(label_set)
     max_label = label_set[-1]
@@ -87,35 +86,6 @@ def mean_class_accuracy(scores, labels):
     pred = np.argmax(scores, axis=1)
 
     cf_mat = confusion_matrix(pred, labels).astype(float)
-
-    # record predition wrong
-
-    # file = open("/home/wenyi/VST/data/test_ann_sax_cine.txt", "r", encoding='UTF-8')
-    # paths = []
-    # while 1:
-    #     line = file.readline()
-    #     if not line:
-    #         break
-    #     line = line.split(' ')[0]
-    #     paths.append(line)
-    #
-    # with open('/home/wenyi/VST/work_dirs/mis_pre.txt', 'w') as f:
-    #     for i in range(len(labels)):
-    #         if pred[i] != labels[i]:
-    #             f.write(str(i) + ' ' + paths[i] + ' ' + str(labels[i]) + ' ' + str(pred[i]) + '\n')
-    # f.close()
-
-
-
-    # record prediction results per sample
-
-#    with open('/home/yanran/VST/work_dirs/pre_4ch.txt', 'w') as f:
-#        for i in range(len(labels)):
-#            s = ''
-#            for idx in scores[i]:
-#                s = s + str(idx) + ' '
-#            f.write(s + '\n')
-#    f.close()
 
     cls_cnt = cf_mat.sum(axis=1)  # 每一列的和向量
     cls_hit = np.diag(cf_mat)  #对角线元素向量

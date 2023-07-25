@@ -90,10 +90,6 @@ class Recognizer3D(BaseRecognizer):
         assert self.with_cls_head
         cls_score = self.cls_head(feat, labels)
         cls_score = self.average_clip(cls_score, num_segs)
-        # with open('/home/wenyi/VST/work_dirs/sax_cine_binary/base+sa_pre_label_best_sax_all.txt', 'a') as f:
-        #     cls_label = labels[0][0]
-        #     f.write(str(cls_score[0][1].cpu().item()) + '\n' + str(cls_label.cpu().item()) + '\n')
-        # f.close()
         return cls_score
 
     def forward_test(self, imgs, labels):
