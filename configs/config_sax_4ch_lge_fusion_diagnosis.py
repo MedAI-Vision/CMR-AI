@@ -24,8 +24,7 @@ model = dict(
         dropout_ratio=0.5,
         num_mod=3,
         loss_cls=dict(
-            type='CrossEntropyLoss',
-            class_weight=[1, 1, 10, 10, 1, 10, 10, 10, 10, 1, 10])),
+            type='CrossEntropyLoss')),
     test_cfg=dict(average_clips='prob'),
     fusion=True,
     sax_weight=
