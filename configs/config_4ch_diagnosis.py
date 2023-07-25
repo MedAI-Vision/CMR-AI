@@ -21,8 +21,7 @@ model = dict(
         spatial_type='avg',
         dropout_ratio=0.5,
         loss_cls=dict(
-            type='CrossEntropyLoss',
-            class_weight=[1, 1, 10, 10, 1, 10, 10, 1, 10, 1, 10])),
+            type='CrossEntropyLoss')),
     test_cfg=dict(average_clips='prob'))
 checkpoint_config = dict(interval=50)
 log_config = dict(interval=20, hooks=[dict(type='TextLoggerHook')])
