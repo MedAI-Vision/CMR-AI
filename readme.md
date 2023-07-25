@@ -78,7 +78,7 @@ For example, to train a VST model with 4 GPUs, run:
 CUDA_VISIBLE_DEVICES=0,1,2,3 bash .../VST/tools/dist_train.sh config.py 4
 ```
 
-1. train singel modality VST-based model (for SAX cine, 4CH cine, and SAX LGE [optional; only for diagnosis], respectively). 
+1. train single modality VST-based model (for SAX cine, 4CH cine, and SAX LGE [optional; only for diagnosis], respectively). 
 Example configuration files: [screening using 4CH cine](https://github.com/MedAI-Vision/CMR-AI-Origin/blob/main/configs/config_sax_screening.py) and [diagnosis using 4CH cine](https://github.com/MedAI-Vision/CMR-AI-Origin/blob/main/configs/config_4ch_diagnosis.py).
 2. extract the parameters of the VST backbone for each single modality model using `./tools/Convert_model.ipynb` and apply them for the initialization of the fusion model.
 3. update configuration file:
