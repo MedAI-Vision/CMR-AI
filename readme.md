@@ -78,20 +78,16 @@ For example, to train a VST model with 4 GPUs, run:
 CUDA_VISIBLE_DEVICES=0,1,2,3 bash .../VST/tools/dist_train.sh config.py 4
 ```
 
-Firstly, train singel modality VST-based model (for SAX cine, 4CH cine, and SAX LGE [optional; only for diagnosis], respectively). 
-Example configuration files: [screening using 4CH cine](https://github.com/MedAI-Vision/CMR-AI-Origin/blob/main/configs/config_sax_screening.py) and [diagnosis using 4CH cine](https://github.com/MedAI-Vision/CMR-AI-Origin/blob/main/configs/config_4ch_diagnosis.py). 
-
-Then, process the model derived from single modality using `./tools/Convert_model.ipynb`, which deleted the last fully-connected layers of VST to faciliate the following multi-branch model assembling. 
-
-Secondly, update configuration file:
-set type='fusion_model' 
-set num_mod = 2 or 3; # 2 for screening (SAX cine and 4CH cine); 3 for diagnosis (SAX cine, 4CH cine, and SAX LGE)
-set fusion=True
-set sax_weight, ch_weight, and lge_weight to be the path of each trained single modality model.
-
+1. train singel modality VST-based model (for SAX cine, 4CH cine, and SAX LGE [optional; only for diagnosis], respectively). 
+Example configuration files: [screening using 4CH cine](https://github.com/MedAI-Vision/CMR-AI-Origin/blob/main/configs/config_sax_screening.py) and [diagnosis using 4CH cine](https://github.com/MedAI-Vision/CMR-AI-Origin/blob/main/configs/config_4ch_diagnosis.py).
+2. process the model derived from single modality using `./tools/Convert_model.ipynb`, which deleted the last fully-connected layers of VST to faciliate the following multi-branch model assembling. 
+3. update configuration file:
+*set type='fusion_model' 
+*set num_mod = 2 or 3; # 2 for screening (SAX cine and 4CH cine); 3 for diagnosis (SAX cine, 4CH cine, and SAX LGE)
+*set fusion=True
+*set sax_weight, ch_weight, and lge_weight [optional; only for diagnosis] to be the path of each trained single modality model.
 Example configuration files: [fusion for screening](https://github.com/MedAI-Vision/CMR-AI-Origin/blob/main/configs/config_sax_4ch_fusion_screening.py) and [fusion for diagnosis](https://github.com/MedAI-Vision/CMR-AI-Origin/blob/main/configs/config_sax_4ch_lge_fusion_diagnosis.py). 
-
-Finally, run the same command as above with the updated configuration file to finetune the fusion model.
+4. run the same command as above with the updated configuration file to finetune the fusion model.
 
 ### Testing
 
