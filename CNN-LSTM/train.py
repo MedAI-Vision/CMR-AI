@@ -86,12 +86,9 @@ def format_time(seconds):
 
 
 class mydataset(torch.utils.data.Dataset):
-    # def __init__(self, sax_sequence, disease):
-
-
     def __init__(self, datapath, disease):
 
-        with open(r'/data/JoyceW/VST_fusion_dataset/workdir/mask_ann_map.pkl', 'rb') as f:
+        with open(r'/data/.../VST_fusion_dataset/workdir/mask_ann_map.pkl', 'rb') as f:
             data_mask_map = pkl.load(f)
         f.close()
 
@@ -110,7 +107,6 @@ class mydataset(torch.utils.data.Dataset):
             class_id = int(path_contents[-1])
             image_dir = path_contents[0]
             self.labels.append(class_id)
-            
 
             if not os.path.exists(image_dir):
                 continue
@@ -126,19 +122,6 @@ class mydataset(torch.utils.data.Dataset):
                 data = self.pad(data, (210, 210))
                 data = self.normalize(data, [154.5, 154.5, 154.5], [66.62, 66.62, 66.62])
                 data = self.resize(data, (64, 64))
-                
-                # try:
-                #     data = self.pad(data, (210, 210))
-                #     data = self.resize(data, (64, 64))
-                #     data = self.normalize(data, [154.5, 154.5, 154.5], [66.62, 66.62, 66.62])
-
-                #     np_array = [data, data, data]
-                #     volume = np.moveaxis(np_array, 0, 1)
-                #     # batch_size, num_frames, num_channels, width, height
-                #     self.data.append((volume, class_id))
-
-                # except:
-                #     print('read error!  ', image_dir)
 
                 data_up_ori = sitk.GetArrayFromImage(sitk.ReadImage(image_dir.replace('mid', 'up')))
                 data_up = np.zeros((self.num, data_up_ori.shape[1], data_up_ori.shape[2]))
@@ -216,10 +199,6 @@ class mydataset(torch.utils.data.Dataset):
         for i in range(ch):
             img = data[i, :, :]
             img = np.expand_dims(img, 2).repeat(3, axis=2)
-
-            # lge mean=[121.04, 121.04, 121.04], std=[39.52, 39.52, 39.52]
-            # sax cine mean=[154.5, 154.5, 154.5], std=[66.62, 66.62, 66.62]
-            # 4ch cine mean=[157.76, 157.76, 157.76], std=[63.57, 63.57, 63.57]
 
             mmcv.imnormalize(img, np.array(mean), np.array(std))
             new_img[i, :, :] = img[:, :, 0]
@@ -453,37 +432,43 @@ def transform_test(image):
 
 
 def run(disease, train_sax, test_sax):
+    # define the datasets
     train_dataset = mydataset(train_sax, disease)
     test_dataset = mydataset(test_sax, disease)
     train_dataset = MapDataset(train_dataset, transform_train)
     test_dataset = MapDataset(test_dataset, transform_test)
+
+    # define the samplers
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
     test_sampler = torch.utils.data.distributed.DistributedSampler(test_dataset)
+
+    # dataloader
     train_loader = DataLoader(dataset=train_dataset, batch_size=4, num_workers=1, sampler=train_sampler)
     test_loader = DataLoader(dataset=test_dataset, batch_size=1, num_workers=1, sampler=test_sampler)
+
     device = torch.device("cuda", args.local_rank)
-    #    model = CnnVst(window_size=(25,7,7))
+
+    # choose Dense4012FrameRNN as our model (CNN-LSTM)
     model = Dense4012FrameRNN(2, True)
-    # optimizer1 = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=0.001)
+
+    # optimizer: SGD
     optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9, weight_decay=0.001)
-    # optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
-    # scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=10, T_mult=10, eta_min=1e-5)
-    # scheduler = lr_scheduler.CosineAnnealingLR(optimizer, T_max=10, eta_min=1e-5)
+
+    # loss function
     criterion = nn.CrossEntropyLoss()
 
+    # train with Multi-GPU
     model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model).to(device)
     model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank],
                                                       output_device=args.local_rank)
 
     epoch_resume = 0
+    out_csv_name = 'log_cnn_lstm.csv'
+    output_path = './output/cnn_lstm/'
 
-    out_csv_name = 'log_23trn_1test.csv'
-    output_path = './output/23trn_1test/'
-    # if not os.path.exists(output_path):
-    #     os.mkdir(output_path)
     try:
         # trying to load checkpoint
-        checkpoint = torch.load(output_path + 'last_cnnlstm_attn_sax_224.pth', map_location=device)
+        checkpoint = torch.load(output_path + 'cnnlstm_pretrained.pth', map_location=device)
         model.load_state_dict(checkpoint['net'], strict=False)
         optimizer.load_state_dict(checkpoint['optimizer'])
         epoch_resume = checkpoint["epoch"] + 1
@@ -506,14 +491,13 @@ def run(disease, train_sax, test_sax):
         df = pd.DataFrame(columns=["epoch", "train loss", 'test loss', "train acc", "test acc"])
         df.to_csv(output_path + out_csv_name, index=False)
     start_time = time.time()
-    for epoch in range(epoch_resume, n_epochs):
 
+    # train loop
+    for epoch in range(epoch_resume, n_epochs):
         model.train()
         train_loader.sampler.set_epoch(epoch)
         train_loss, correct, total = 0.0, 0.0, 0.0
         for i, (x, y) in enumerate(train_loader):
-            # print(y)
-            # x, y = batch
             x = x.type(torch.FloatTensor)
             if num_frames is not None:
                 y = np.repeat(y, num_frames)
@@ -525,21 +509,8 @@ def run(disease, train_sax, test_sax):
                 x = Variable(x) if not use_cuda else Variable(x).cuda(args.local_rank, non_blocking=True)
                 h0 = model.module.init_hidden(x.size(0))
             y = Variable(y) if not use_cuda else Variable(y).cuda(args.local_rank, non_blocking=True)
-
-            # print(x.size(), h0.size())
             outputs = model(x, h0)
-            
-
-            # BCELoss assumes binary classification and relies on probability of second class
             loss = criterion(outputs, y)
-            # print('pred: ', outputs, 'label: ', y)
-
-            '''
-            if epoch < 10:
-                optimizer = optimizer1
-            else:
-                optimizer = optimizer2
-            '''
             optimizer.zero_grad()  # reset gradient
             loss.backward()
             optimizer.step()  # update parameters
@@ -547,16 +518,16 @@ def run(disease, train_sax, test_sax):
             train_loss += loss.item()
             total += y.size(0)
             _, predicted = torch.max(outputs.data, 1)
-            # correct += predicted.eq(y.data).cpu().sum()
             correct += torch.sum(predicted.eq(y.data)).item()
 
         t = torch.tensor([correct, total, train_loss], dtype=torch.float64, device=device)
         dist.barrier()  # synchronizes all processes
-        dist.all_reduce(t, op=torch.distributed.ReduceOp.SUM, )  # Reduces the tensor data across all machines in such a way that all get the final result.
-        # t = t.tolist()
+        # Reduces the tensor data across all machines in such a way that all get the final result.
+        dist.all_reduce(t, op=torch.distributed.ReduceOp.SUM, )
         correct = t[0].item()
         total = t[1].item()
         train_loss = t[2].item()
+
         # progress update
         if (epoch + 1) % update_freq == 0 and args.local_rank == 0:
             elapsed = time.time() - start_time
@@ -572,6 +543,8 @@ def run(disease, train_sax, test_sax):
         test_correct = 0
         test_total = 0
         test_loss = 0
+
+        # evaluation
         model.eval()
         with torch.no_grad():
             for i, batch in enumerate(test_loader):
@@ -598,8 +571,8 @@ def run(disease, train_sax, test_sax):
             t = torch.tensor([test_correct, test_total, test_loss], dtype=torch.float64, device=device)
             dist.barrier()  # synchronizes all processes
             dist.all_reduce(t,
-                            op=torch.distributed.ReduceOp.SUM, )  # Reduces the tensor data across all machines in such a way that all get the final result.
-            # t = t.tolist()
+                            op=torch.distributed.ReduceOp.SUM, )
+            # Reduces the tensor data across all machines in such a way that all get the final result.
             test_correct = int(t[0].item())
             test_total = int(t[1].item())
             test_loss = t[2].item()
@@ -611,7 +584,6 @@ def run(disease, train_sax, test_sax):
                 test_loss = avg_loss
                 if acc > best_acc:
                     best_acc = acc
-                    # model_without_ddp = model.module
                     torch.save(model.module.state_dict(),
                                output_path + 'best_cnnlstm_attn_sax_224.pth')
         if args.local_rank == 0:

@@ -31,7 +31,6 @@ log_level = 'INFO'
 load_from = '/data/.../VST_fusion_dataset/VST/checkpoints/swin_base_patch244_window877_kinetics600_22k.pth'
 resume_from = '/data/.../VST_fusion_dataset/workdir/4ch_cine_11cls/spacing_0.994/TRAIN/epoch_100.pth'
 workflow = [('train', 1)]
-class_weight = [1, 1, 10, 10, 1, 10, 10, 1, 10, 1, 10]
 spacing = 0.994
 padding = 210
 dataset_type = 'RawframeDataset'

@@ -92,7 +92,7 @@ class mydataset(torch.utils.data.Dataset):
 
     def __init__(self, datapath, disease):
 
-        with open(r'/data/JoyceW/VST_fusion_dataset/workdir/mask_ann_map.pkl', 'rb') as f:
+        with open(r'/data/.../VST_fusion_dataset/workdir/mask_ann_map.pkl', 'rb') as f:
             data_mask_map = pkl.load(f)
         f.close()
 
@@ -126,19 +126,6 @@ class mydataset(torch.utils.data.Dataset):
                 data = self.pad(data, (210, 210))
                 data = self.normalize(data, [154.5, 154.5, 154.5], [66.62, 66.62, 66.62])
                 data = self.resize(data, (64, 64))
-
-                # try:
-                #     data = self.pad(data, (210, 210))
-                #     data = self.resize(data, (64, 64))
-                #     data = self.normalize(data, [154.5, 154.5, 154.5], [66.62, 66.62, 66.62])
-
-                #     np_array = [data, data, data]
-                #     volume = np.moveaxis(np_array, 0, 1)
-                #     # batch_size, num_frames, num_channels, width, height
-                #     self.data.append((volume, class_id))
-
-                # except:
-                #     print('read error!  ', image_dir)
 
                 data_up_ori = sitk.GetArrayFromImage(sitk.ReadImage(image_dir.replace('mid', 'up')))
                 data_up = np.zeros((self.num, data_up_ori.shape[1], data_up_ori.shape[2]))
@@ -216,10 +203,6 @@ class mydataset(torch.utils.data.Dataset):
         for i in range(ch):
             img = data[i, :, :]
             img = np.expand_dims(img, 2).repeat(3, axis=2)
-
-            # lge mean=[121.04, 121.04, 121.04], std=[39.52, 39.52, 39.52]
-            # sax cine mean=[154.5, 154.5, 154.5], std=[66.62, 66.62, 66.62]
-            # 4ch cine mean=[157.76, 157.76, 157.76], std=[63.57, 63.57, 63.57]
 
             mmcv.imnormalize(img, np.array(mean), np.array(std))
             new_img[i, :, :] = img[:, :, 0]
@@ -419,7 +402,6 @@ def transform_test(image):
     for i in range(image.shape[0]):
         img = Image.fromarray(np.uint8(np.transpose(image[i, :, :, :], (1, 2, 0))))
         img = tf.to_tensor(img)
-        # img = tf.normalize(img, [0.13268289, 0.13221595, 0.13187733], [0.24014601, 0.23915084, 0.23863715])
         image[i, :, :, :] = img
     return image
 

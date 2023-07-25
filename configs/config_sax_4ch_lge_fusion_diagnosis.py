@@ -41,7 +41,6 @@ log_level = 'INFO'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]
-class_weight = [1, 1, 10, 10, 1, 10, 10, 10, 10, 1, 10]
 train_fold = 12
 test_fold = 3
 mask_ann = '/data/.../VST_fusion_dataset/workdir/mask_ann_map.pkl'
